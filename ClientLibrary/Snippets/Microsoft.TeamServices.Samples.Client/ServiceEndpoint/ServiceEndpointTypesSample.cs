@@ -3,22 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.TeamFoundation.DistributedTask.WebApi;
+using Microsoft.TeamFoundation.DistributedTask.ServiceEndpoints;
 using Microsoft.VisualStudio.Services.WebApi;
 
-namespace Microsoft.TeamServices.Samples.Client.Services
+namespace Microsoft.TeamServices.Samples.Client.ServiceEndpoints
 {
     /// <summary>
     /// The service endpoint types sample
     /// </summary>
-    [ClientSample(TaskResourceIds.Area2Name, TaskResourceIds.ServiceEndpointTypesResource)]
+    [ClientSample(ServiceEndpointResourceIds.AreaName, ServiceEndpointResourceIds.EndpointTypeResource.Name)]
     class ServiceEndpointTypesSample : ClientSample
     {
         /// <summary>
         /// The get service endpoint types.
         /// </summary>
         /// <returns>
-        /// The <see cref="ServiceEndpointType">.
+        /// The <see cref="List{ServiceEndpointType}">.
         /// </returns>
         [ClientSampleMethod]
         public List<ServiceEndpointType> GetServiceEndpointTypes()
@@ -44,7 +44,7 @@ namespace Microsoft.TeamServices.Samples.Client.Services
         /// The get service endpoint types.
         /// </summary>
         /// <returns>
-        /// The <see cref="ServiceEndpointType">.
+        /// The <see cref="List{ServiceEndpointType}">.
         /// </returns>
         [ClientSampleMethod]
         public List<ServiceEndpointType> GetServiceEndpointTypesByScheme()

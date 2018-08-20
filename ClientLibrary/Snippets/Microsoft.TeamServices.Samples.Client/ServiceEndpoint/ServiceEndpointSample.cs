@@ -1,18 +1,18 @@
-﻿using Microsoft.TeamFoundation.DistributedTask.WebApi;
-using Microsoft.VisualStudio.Services.Common;
-using Microsoft.VisualStudio.Services.WebApi;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.TeamFoundation.DistributedTask.ServiceEndpoints;
+using Microsoft.VisualStudio.Services.Common;
+using Microsoft.VisualStudio.Services.WebApi;
 
-namespace Microsoft.TeamServices.Samples.Client.Services
+namespace Microsoft.TeamServices.Samples.Client.ServiceEndpoints
 {
     /// <summary>
     /// The service endpoints sample
     /// </summary>
-    [ClientSample(TaskResourceIds.Area2Name, TaskResourceIds.ServiceEndpointsResource)]
+    [ClientSample(ServiceEndpointResourceIds.AreaName, ServiceEndpointResourceIds.EndpointResource.Name)]
     class ServiceEndpointSample : ClientSample
     {
         /// <summary>
@@ -47,7 +47,7 @@ namespace Microsoft.TeamServices.Samples.Client.Services
                                         {
                                             {
                                                 EndpointAuthorizationParameters.Certificate,
-                                                "dummyCertificate"
+                                                "dummyCertificate 1"
                                             }
                                         }
                                  }
@@ -65,12 +65,12 @@ namespace Microsoft.TeamServices.Samples.Client.Services
             VssConnection connection = Context.Connection;
             ServiceEndpointHttpClient serviceEndpointClient = connection.GetClient<ServiceEndpointHttpClient>();
 
-            // Create variable group
+            // Create service endpoint
             ServiceEndpoint addedServiceEndpoint = serviceEndpointClient.CreateServiceEndpointAsync(project: projectName, endpoint: serviceEndpoint).Result;
             this.addedServiceEndpointId = addedServiceEndpoint.Id;
             this.addedServiceEndpointName = addedServiceEndpoint.Name;
 
-            // Show the added variable group
+            // Show the added service endpoint
             Console.WriteLine("{0} {1}", addedServiceEndpoint.Id.ToString(), addedServiceEndpoint.Name);
             
             return addedServiceEndpoint;
@@ -97,6 +97,25 @@ namespace Microsoft.TeamServices.Samples.Client.Services
             
             // Updated name in service endpoint
             serviceEndpoint.Name = "Updated TestEndpoint";
+            serviceEndpoint.Authorization = new EndpointAuthorization()
+            {
+                Scheme = EndpointAuthorizationSchemes.Certificate,
+                Parameters =
+                {
+                    {
+                        EndpointAuthorizationParameters.Certificate,
+                        "dummyCertificate 2"
+                    }
+                }
+            };
+
+            serviceEndpoint.Data.AddRange(
+                new Dictionary<string, string>()
+                {
+                    { "SubscriptionId", "12345678-1234-1234-1234-123456799999" },
+                    { "SubscriptionName", "TestSubscriptionName-2" }
+                }
+            );
 
             // Update the service endpoint
             ServiceEndpoint updatedServiceEndpoint = serviceEndpointClient.UpdateServiceEndpointAsync(project: projectName, endpointId: this.addedServiceEndpointId, endpoint: serviceEndpoint).Result;
@@ -221,6 +240,7 @@ namespace Microsoft.TeamServices.Samples.Client.Services
         [ClientSampleMethod]
         public List<ServiceEndpoint> GetServiceEndpoints()
         {
+            System.Diagnostics.Debugger.Launch();
             string projectName = ClientSampleHelpers.FindAnyProject(this.Context).Name;
 
             // Get a service endpoint client instance
@@ -235,13 +255,22 @@ namespace Microsoft.TeamServices.Samples.Client.Services
                 Type = "Azure",
                 Authorization = new EndpointAuthorization()
                 {
-                    Scheme = EndpointAuthorizationSchemes.None,
+                    Scheme = EndpointAuthorizationSchemes.UsernamePassword,
                     Parameters =
                         {
-                            { "nugetkey", "dummykey" }
+                            { EndpointAuthorizationParameters.Username, "Username" },
+                            { EndpointAuthorizationParameters.Password, "Password" }
                         }
-                }
+                },
             };
+
+            serviceEndpoint.Data.AddRange(
+                new Dictionary<string, string>()
+                {
+                    { "SubscriptionId", "12345678-1234-1234-1234-123456789012" },
+                    { "SubscriptionName", "TestSubscriptionName" }
+                }
+            );
 
             ServiceEndpoint addedServiceEndpoint = serviceEndpointClient.CreateServiceEndpointAsync(project: projectName, endpoint: serviceEndpoint).Result;
 
@@ -284,6 +313,15 @@ namespace Microsoft.TeamServices.Samples.Client.Services
             serviceEndpoints.ForEach((ServiceEndpoint se) =>
             {
                 se.Url = new Uri("http://testUrl//" + se.Name);
+                se.Authorization = new EndpointAuthorization()
+                {
+                    Scheme = EndpointAuthorizationSchemes.UsernamePassword,
+                    Parameters =
+                                                {
+                                                    { EndpointAuthorizationParameters.Username, "username" },
+                                                    { EndpointAuthorizationParameters.Password, "password" }
+                                                }
+                };
             });
 
             // Update the service endpoints
